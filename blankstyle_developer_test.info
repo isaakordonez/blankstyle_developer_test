@@ -1,0 +1,4 @@
+name = BlankStyle Developer Test
+description = Call to development API.
+core = 6.x
+package = Custom modules
