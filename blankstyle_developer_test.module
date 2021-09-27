@@ -5,7 +5,7 @@
  */
 function blankstyle_developer_test_menu() {
 
-  $items['custom/call_api'] = array(
+  $items['product/s2'] = array(
     'title' => 'Call API',
     'page callback' => 'blankstyle_developer_test_page_show_info',
     'access callback' => TRUE,
@@ -52,6 +52,9 @@ function cUrlGetData($url, $post_fields = null, $headers = null){
  * A simple page callback.
  * */
 function blankstyle_developer_test_page_show_info() {
+    drupal_add_css(drupal_get_path('module', 'blankstyle_developer_test') .'/css/variants.css');
+    drupal_add_js(drupal_get_path('module', 'blankstyle_developer_test') . '/js/variants.js');
+
     $url = "http://blankstyle-backend-api-dev.us-west-2.elasticbeanstalk.com/product/query";
     $post_fields = array(
         "limit" => 1,
@@ -67,12 +70,35 @@ function blankstyle_developer_test_page_show_info() {
     $products = json_decode($data);
     $output = '';
     if(!empty($products)) {
+
+
         foreach ($products as &$product) {
-            $output .= '<div id="product-'.$product->_id.'" >';
-            drupal_set_title(check_plain($product->name->AP));
-            $output .= '<p><img src="'.check_url($product->images->AP->front).'" style="width: 320px;float: left;margin-right: 20px;" /></p>';
-            $output .= '<p>'.t($product->description->AP).'</p>';
+            $output .= '<div class="dropdown">';
+            $output .= '<label for="variants">Select Variant</label>';
+            $output .= ' <select name="variants" id="variants">';
+            foreach($product->name as $key => $variant){
+
+                $selected = $key == 'S2' ? 'selected="selected"' : '';
+
+                $output .= '   <option '.$selected.'  value="'.$key.'">  '.$key.' - '.$variant.'</option>';
+            }
+            $output .= '</select></div>';
+
+            drupal_set_title(check_plain($product->name->S2));
+            $output .= '<div id="products-list">';
+            foreach($product->name as $key => $variant){
+                $output .= '<div id="'.$key.'" class="product-item">';
+
+                $output .= '<p><img src="'.check_url($product->images->$key->front).'" style="width: 320px;float: left;margin-right: 20px;" /></p>';
+                $output .= '<p>'.t($product->description->$key).'</p>';
+                $output .= '</div>';
+            }
             $output .= '</div>';
+
+
+
+
+
         }
     }
   return $output;
